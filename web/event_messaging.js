@@ -1,3 +1,4 @@
+// postMessage helper
 function postParentMessage(name, data) {
     if (window.parent.postMessage) {
         window.parent.postMessage({
@@ -7,6 +8,7 @@ function postParentMessage(name, data) {
     }
 }
 
+// announce a page changes
 window.addEventListener('pagechange', function (evt) {
     var page = evt.pageNumber,
         numPages = PDFViewerApplication.pagesCount;
@@ -27,9 +29,22 @@ window.addEventListener('pagechange', function (evt) {
     }
 });
 
+// announce a download to parent
 window.addEventListener('download', function (evt) {
     postParentMessage('download', {
         filename: evt.filename,
         url: evt.url
     });
+});
+
+// remote control
+window.addEventListener('message', function windowMessage(e) {
+    switch(e.data.action) {
+        case 'openUrl':
+            PDFViewerApplication.open(e.data.url);
+            break;
+        case 'namedAction':
+            PDFViewerApplication.executeNamedAction(e.data.actionName);
+            break;
+    }
 });
