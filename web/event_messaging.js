@@ -1,6 +1,6 @@
 // postMessage helper
 function postParentMessage(name, data) {
-    if (window.parent.postMessage) {
+    if (window.parent && window.parent!=window && window.parent.postMessage) {
         window.parent.postMessage({
             name: 'pdfjs:' + name,
             data: data
@@ -14,17 +14,17 @@ window.addEventListener('pagechange', function (evt) {
         numPages = PDFViewerApplication.pagesCount;
     if (evt.updateInProgress == false) {
         postParentMessage('pagechange', {
-            currentPage: page,
-            previousPage: evt.previousPageNumber,
-            totalPages: numPages
+            currentPageNumber: page,
+            previousPageNumber: evt.previousPageNumber,
+            numPages: numPages
         });
     }
 
     if (evt.previousPageNumber !== page) {
         postParentMessage('pagechange', {
-            currentPage: page,
-            previousPage: evt.previousPageNumber,
-            totalPages: numPages
+            currentPageNumber: page,
+            previousPageNumber: evt.previousPageNumber,
+            numPages: numPages
         });
     }
 });
@@ -37,6 +37,15 @@ window.addEventListener('download', function (evt) {
     });
 });
 
+// announce document ready load
+window.addEventListener('documentload', function (evt) {
+    postParentMessage('documentload', {
+        numPages: evt.detail.numPages,
+        fingerprint: evt.detail.fingerprint
+    });
+});
+
+
 // remote control
 window.addEventListener('message', function windowMessage(e) {
     switch(e.data.action) {
@@ -45,6 +54,9 @@ window.addEventListener('message', function windowMessage(e) {
             break;
         case 'namedAction':
             PDFViewerApplication.executeNamedAction(e.data.actionName);
+            break;
+        case 'download':
+            PDFViewerApplication.download();
             break;
     }
 });

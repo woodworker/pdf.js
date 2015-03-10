@@ -870,7 +870,10 @@ var PDFViewerApplication = {
     firstPagePromise.then(function(pdfPage) {
       downloadedPromise.then(function () {
         var event = document.createEvent('CustomEvent');
-        event.initCustomEvent('documentload', true, true, {});
+        event.initCustomEvent('documentload', true, true, {
+            numPages: pdfDocument.numPages,
+            fingerprint: pdfDocument.fingerprint
+        });
         window.dispatchEvent(event);
       });
 
