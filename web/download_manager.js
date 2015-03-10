@@ -78,6 +78,13 @@ var DownloadManager = (function DownloadManagerClosure() {
     },
 
     download: function DownloadManager_download(blob, url, filename) {
+      var event = document.createEvent('UIEvents');
+      event.initUIEvent('download', true, true, window, 0);
+      event.updateInProgress = this.updateInProgress;
+      event.url = url;
+      event.filename = filename;
+      window.dispatchEvent(event);
+
       if (!URL) {
         // URL.createObjectURL is not supported
         this.downloadUrl(url, filename);
